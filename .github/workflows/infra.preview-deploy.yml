@@ -14,21 +14,21 @@ permissions:
   contents: read
 
 env:
-    TF_VERSION: 1.2.8
+  TF_VERSION: 1.2.8
 
 defaults:
-    run:
-        shell: bash
-        working-directory: "10_infra/"
+  run:
+    shell: bash
+    working-directory: "10_infra/"
 
 jobs:
   preview:
     name: "Preview"
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
-        - name: Setup terraform
+      - name: Setup terraform
         uses: hashicorp/setup-terraform@v2
         with:
-            terraform_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ env.TF_VERSION }}
