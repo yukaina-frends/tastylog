@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 10_infra/**
-      - github/workflows/**
+      - .github/workflows/**
   workflow_dispatch:
 
 permissions:
@@ -14,8 +14,10 @@ permissions:
   contents: read
 
 env:
-  TF_VERSION: 1.2.8
   AWS_REGION: ap-northeast-1
+  TF_VERSION: 1.2.8
+  TF_PROJECT: tastylog
+  TF_ENVIRONMENT: dryrun
 
 defaults:
   run:
@@ -24,10 +26,10 @@ defaults:
 
 jobs:
   preview:
-    name: "Preview"
+    name: Preview
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Cehckout repository
         uses: actions/checkout@v3
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v2
@@ -36,7 +38,7 @@ jobs:
       - name: Terraform format
         run: |
           terraform fmt -check
-      - name: Configure AWS Credentials
+      - name: Configure AWS Credential
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
@@ -44,3 +46,17 @@ jobs:
       - name: Terraform init
         run: |
           terraform init -no-color
+      - name: Terraform validate
+        run: |
+          terraform validate -no-color
+      - name: Terraform plan
+        id: plan
+        run: |
+          terraform plan \
+            -var 'project=${{ env.TF_PROJECT }}' \
+            -var 'environment=${{ env.TF_ENVIRONMENT }}' \
+            -var 'username=${{ secrets.MYSQL_USERNAME }}' \
+            -var 'password=${{ secrets.MYSQL_PASSWORD }}' \
+            -input=false \
+            -no-color \
+            -detailed-exitcode
